@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::paths;
+use crate::{paths, Args, Error, Protocol, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

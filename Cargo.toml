@@ -36,6 +36,9 @@ clap-serde-derive = "0.2.1"
 colored = "2.1.0"
 crossterm = "0.28.1"
 dirs = "5.0.1"
+rand = "*"
 rayon = "1.10.0"
+serde = { version = "1.0.210", features = ["derive"] }
+tokio = { version = "1.40.0", features = ["full"] }
 toml = "0.8.19"
 
