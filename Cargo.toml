@@ -3,12 +3,21 @@ name = "tsunami"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-atoi_radix10 = "0.0.1"
-bytes = "1.6.0"
-hex = "0.4.3"
+clap = { version = "*", features = ["derive"] }
+clap-serde-derive = "*"
+colored = "*"
+crossterm = "*"
+dirs = "*"
+rayon = "*"
+serde = { version = "*", features = ["derive"] }
 tokio = { version = "*", features = ["full"] }
-tokio-test = "*"
+toml = "*"
+
+[dev-dependencies]
+tempfile = "*"
+test-case = "*"
+criterion = "*"
+rand = "*"
 
 [profile.dev]
 opt-level = 1
@@ -20,4 +29,13 @@ opt-level = 3
 lto = "fat"
 codegen-units = 1
 panic = "abort"
+
+[dependencies]
+clap = "4.5.19"
+clap-serde-derive = "0.2.1"
+colored = "2.1.0"
+crossterm = "0.28.1"
+dirs = "5.0.1"
+rayon = "1.10.0"
+toml = "0.8.19"
 
