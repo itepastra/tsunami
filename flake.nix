@@ -1,8 +1,8 @@
 {
-	inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-	outputs = {self, nixpkgs, ...}:
-	    let
+  outputs = { self, nixpkgs, ... }:
+    let
       allSystems = [
         "x86_64-linux" # 64-bit Intel/AMD Linux
         "aarch64-linux" # 64-bit ARM Linux
@@ -14,15 +14,28 @@
         pkgs = import nixpkgs { inherit system; };
       });
     in
-		{
-		devShell = forAllSystems ({ system, pkgs }:
-			pkgs.mkShell {
-			buildInputs = [
-				pkgs.rustup
-				pkgs.wgo
-				pkgs.cargo-flamegraph
-				pkgs.cargo-udeps
-			];
-		});
-	};
+    {
+      packages = forAllSystems
+        ({ system, pkgs }:
+          rec {
+            default = tsunami;
+            tsunami =
+              pkgs.rustPlatform.buildRustPackage {
+                pname = "tsunami";
+                version = "0.1.0";
+                cargoLock.lockFile = ./Cargo.lock;
+                src = pkgs.lib.cleanSource ./.;
+              };
+          });
+
+      devShell = forAllSystems ({ system, pkgs }:
+        pkgs.mkShell {
+          buildInputs = [
+            pkgs.rustup
+            pkgs.wgo
+            pkgs.cargo-flamegraph
+            pkgs.cargo-udeps
+          ];
+        });
+    };
 }
