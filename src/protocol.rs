@@ -1,7 +1,7 @@
+use atoi_radix10::parse_from_str;
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt};
-use toml::from_str;
 
 use crate::{Color, Result};
 
@@ -36,15 +36,15 @@ impl Protocol {
                 let mut line = "".to_string();
                 reader.read_line(&mut line).await?;
 
-                let size: Vec<u16> = line
-                    .split(' ')
-                    .map(|part| from_str::<u16>(part).unwrap())
-                    .take(2)
-                    .collect();
-                return Ok(CanvasSize {
-                    x: size[0],
-                    y: size[1],
-                });
+                let mut split = line.trim().split(" ");
+                let _command = split.next();
+                let x = split.next().unwrap();
+                let y = split.next().unwrap();
+
+                let x = parse_from_str(x).unwrap();
+                let y = parse_from_str(y).unwrap();
+
+                return Ok(CanvasSize { x, y });
             }
             Protocol::BinFlurry => {
                 const SIZE_BIN: u8 = 115;
