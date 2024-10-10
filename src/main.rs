@@ -6,6 +6,7 @@ use rand::random;
 use tokio::{
     io::{AsyncReadExt, BufReader, BufWriter},
     net::TcpStream,
+    time::{sleep, timeout},
 };
 use tsunami::*;
 
@@ -133,6 +134,9 @@ async fn main() -> Result<()> {
                 let mut buf = vec![0; 4096];
                 loop {
                     if let Ok(n) = reader.read(&mut buf).await {
+                        if n == 0 {
+                            sleep(Duration::from_millis(10)).await;
+                        }
                     } else {
                         break;
                     };
@@ -157,7 +161,7 @@ async fn main() -> Result<()> {
                 Mode::Write => {
                     match_parser!(proto: protocol => {
                         loop {
-                            let color = Color::RGB24(random(), random(), random());
+                            let color = random();
                             match proto.send_frame(&mut writer, canvas, color, &size).await {
                                 Ok(_) => {},
                                 Err(_) => {

@@ -47,6 +47,7 @@ build_protocol_mode_enum! {
 }
 
 pub trait Proto {
+    #[allow(async_fn_in_trait)]
     async fn send_frame<W: AsyncWriteExt + std::marker::Unpin>(
         &mut self,
         writer: &mut W,
@@ -55,6 +56,7 @@ pub trait Proto {
         size: &CanvasSize,
     ) -> Result<()>;
 
+    #[allow(async_fn_in_trait)]
     async fn get_frame<W: AsyncWriteExt + std::marker::Unpin>(
         &mut self,
         writer: &mut W,

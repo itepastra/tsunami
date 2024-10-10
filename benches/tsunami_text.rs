@@ -7,7 +7,7 @@ pub fn benchmark_send(c: &mut Criterion) {
         async fn fun_name(
             (mut proto, canvas, size, mut writer): (text::Protocol, u8, CanvasSize, Vec<u8>),
         ) {
-            let color = tsunami::Color::RGB24(random(), random(), random());
+            let color = random();
             proto
                 .send_frame(&mut writer, canvas, color, &size)
                 .await
