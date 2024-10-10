@@ -145,7 +145,11 @@ async fn main() -> Result<()> {
                        loop {
                             match proto.get_frame(&mut writer, canvas, &size).await {
                                 Ok(_) => {},
-                                Err(_) => todo!("got receive error"),
+                                Err(_) => {
+                                    let () = read_drain.await.unwrap_or(());
+                                    eprintln!("there was a disconnect on a worker, terminating it");
+                                    return;
+                                },
                             }
                         }
                     })
@@ -156,7 +160,11 @@ async fn main() -> Result<()> {
                             let color = Color::RGB24(random(), random(), random());
                             match proto.send_frame(&mut writer, canvas, color, &size).await {
                                 Ok(_) => {},
-                                Err(_) => todo!("got send error"),
+                                Err(_) => {
+                                    let () = read_drain.await.unwrap_or(());
+                                    eprintln!("there was a disconnect on a worker, terminating it");
+                                    return;
+                                },
                             }
                         }
                     })

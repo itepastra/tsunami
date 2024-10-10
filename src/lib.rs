@@ -1,7 +1,7 @@
 mod args;
 mod color;
 mod config;
-mod protocol;
+pub mod protocol;
 
 pub mod paths;
 use std::fmt::Display;
