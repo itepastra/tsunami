@@ -1,15 +1,11 @@
 use clap_serde_derive::ClapSerde;
-use std::{
-    io::{self, Write},
-    time::Duration,
-};
+use std::{io::Write, time::Duration};
 
 use colored::Colorize;
 use rand::random;
 use tokio::{
-    io::{AsyncWriteExt, BufReader, BufWriter},
+    io::{AsyncReadExt, BufReader, BufWriter},
     net::TcpStream,
-    task::JoinHandle,
 };
 use tsunami::*;
 
@@ -108,6 +104,7 @@ async fn main() -> Result<()> {
             args.host = Some(target.host.clone());
             args.protocol = target.protocol.clone();
             args.canvas = target.canvas;
+            args.mode = target.mode;
         }
         None => {}
     }
@@ -115,29 +112,54 @@ async fn main() -> Result<()> {
     let context = Context { args };
     let host = context.args.host.clone().unwrap();
     let protocol = context.args.protocol.clone();
+    let mode = context.args.mode.clone();
     let canvas = context.args.canvas.clone();
 
     let mut handles = vec![];
     let threads = context.args.send_threads.clone();
     println!("Spawning threads");
     for thread in 0..threads {
-        let mut socket = TcpStream::connect(host.clone()).await?;
+        let socket = TcpStream::connect(host.clone()).await?;
         println!("Thread {} connected", thread);
         handles.push(tokio::spawn(async move {
-            let (reader, writer) = socket.split();
+            let (reader, writer) = socket.into_split();
             let mut reader = BufReader::new(reader);
             let mut writer = BufWriter::new(writer);
             let size = protocol
                 .preamble(&mut writer, &mut reader, canvas)
                 .await
                 .unwrap();
-            let mut frames: u64 = 0;
+            let read_drain = tokio::spawn(async move {
+                let mut buf = vec![0; 4096];
+                loop {
+                    if let Ok(n) = reader.read(&mut buf).await {
+                    } else {
+                        break;
+                    };
+                }
+            });
             println!("Thread {} got canvas size ({}, {})", thread, size.x, size.y);
-            loop {
-                let color = Color::RGB24(random(), random(), random());
-                match protocol.send_frame(&mut writer, canvas, color, &size).await {
-                    Ok(_) => frames += 1,
-                    Err(_) => return frames,
+            match mode {
+                Mode::Read => {
+                    match_parser!(proto: protocol => {
+                       loop {
+                            match proto.get_frame(&mut writer, canvas, &size).await {
+                                Ok(_) => {},
+                                Err(_) => todo!("got receive error"),
+                            }
+                        }
+                    })
+                }
+                Mode::Write => {
+                    match_parser!(proto: protocol => {
+                        loop {
+                            let color = Color::RGB24(random(), random(), random());
+                            match proto.send_frame(&mut writer, canvas, color, &size).await {
+                                Ok(_) => {},
+                                Err(_) => todo!("got send error"),
+                            }
+                        }
+                    })
                 }
             }
         }));

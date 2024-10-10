@@ -42,4 +42,4 @@ rayon = "1.10.0"
 serde = { version = "1.0.210", features = ["derive"] }
 tokio = { version = "1.40.0", features = ["full"] }
 toml = "0.8.19"
-
+ufmt = { version = "0.2.0", features = ["std"] }

@@ -1,7 +1,7 @@
 use clap_serde_derive::ClapSerde;
 use serde::{Deserialize, Serialize};
 
-use crate::Protocol;
+use crate::{Mode, Protocol};
 
 #[derive(ClapSerde, Clone, Debug, Serialize, Deserialize)]
 #[command(author, version, about, long_about = None)]
@@ -20,6 +20,11 @@ pub struct Args {
     #[clap(long)]
     #[serde(default)]
     pub protocol: Protocol,
+
+    /// Wether to send or receive frames
+    #[clap(long)]
+    #[serde(default)]
+    pub mode: Mode,
 
     /// Target canvas (if supported)
     #[clap(long)]
@@ -64,6 +69,7 @@ impl Args {
             width: None,
             height: None,
             protocol: Protocol::default(),
+            mode: Mode::Write,
             canvas: 0,
             debug: false,
             send_threads: 4,

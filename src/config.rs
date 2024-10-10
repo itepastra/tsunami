@@ -1,7 +1,16 @@
 use std::collections::HashMap;
 
 use crate::{paths, Args, Error, Protocol, Result};
+use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, ValueEnum, Hash, Default)]
+#[serde(rename_all = "kebab-case")]
+pub enum Mode {
+    Read,
+    #[default]
+    Write,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
@@ -16,6 +25,7 @@ pub struct Config {
 pub struct Target {
     pub host: String,
     pub protocol: Protocol,
+    pub mode: Mode,
     #[serde(default)]
     pub canvas: u8,
 }
