@@ -35,6 +35,7 @@
             pkgs.wgo
             pkgs.cargo-flamegraph
             pkgs.cargo-udeps
+            pkgs.gnuplot
           ];
         });
     };
