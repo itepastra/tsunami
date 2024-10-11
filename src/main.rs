@@ -150,8 +150,8 @@ async fn main() -> Result<()> {
                             match proto.get_frame(&mut writer, canvas, &size).await {
                                 Ok(_) => {},
                                 Err(_) => {
-                                    let () = read_drain.await.unwrap_or(());
                                     eprintln!("there was a disconnect on a worker, terminating it");
+                                    read_drain.abort();
                                     return;
                                 },
                             }
@@ -165,8 +165,8 @@ async fn main() -> Result<()> {
                             match proto.send_frame(&mut writer, canvas, color, &size).await {
                                 Ok(_) => {},
                                 Err(_) => {
-                                    let () = read_drain.await.unwrap_or(());
                                     eprintln!("there was a disconnect on a worker, terminating it");
+                                    read_drain.abort();
                                     return;
                                 },
                             }
@@ -180,10 +180,10 @@ async fn main() -> Result<()> {
 
     for handle in handles {
         match handle.await {
-            Ok(_) => todo!(),
-            Err(_) => todo!(),
+            Ok(_) => println!("handle closed without errors"),
+            Err(err) => println!("handle closed with error {}", err),
         }
     }
 
-    return Ok(());
+    Ok(())
 }
