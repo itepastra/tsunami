@@ -25,10 +25,10 @@ impl Proto for Protocol {
                     .write_all(&[
                         SET_PX_RGB_BIN,
                         canvas,
-                        i.to_le_bytes()[0],
-                        i.to_le_bytes()[1],
-                        j.to_le_bytes()[0],
-                        j.to_le_bytes()[1],
+                        i.to_be_bytes()[0],
+                        i.to_be_bytes()[1],
+                        j.to_be_bytes()[0],
+                        j.to_be_bytes()[1],
                         r,
                         g,
                         b,
@@ -52,10 +52,10 @@ impl Proto for Protocol {
                     .write_all(&[
                         GET_PX_BIN,
                         canvas,
-                        i.to_le_bytes()[0],
-                        i.to_le_bytes()[1],
-                        j.to_le_bytes()[0],
-                        j.to_le_bytes()[1],
+                        i.to_be_bytes()[0],
+                        i.to_be_bytes()[1],
+                        j.to_be_bytes()[0],
+                        j.to_be_bytes()[1],
                     ])
                     .await?;
             }
