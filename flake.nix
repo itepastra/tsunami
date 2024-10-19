@@ -1,7 +1,13 @@
 {
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    fenix = {
+      url = "github:nix-community/fenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
 
-  outputs = { self, nixpkgs, ... }:
+  outputs = { self, nixpkgs, fenix }:
     let
       allSystems = [
         "x86_64-linux" # 64-bit Intel/AMD Linux
@@ -12,11 +18,12 @@
       forAllSystems = f: nixpkgs.lib.genAttrs allSystems (system: f {
         inherit system;
         pkgs = import nixpkgs { inherit system; };
+        fpkgs = import fenix { inherit system; };
       });
     in
     {
       packages = forAllSystems
-        ({ system, pkgs }:
+        ({ system, pkgs, fpkgs }:
           rec {
             default = tsunami;
             tsunami =
@@ -28,15 +35,20 @@
               };
           });
 
-      devShell = forAllSystems ({ system, pkgs }:
+      devShell = forAllSystems ({ system, pkgs, fpkgs }:
+        let
+          ffpkgs = fpkgs.complete;
+        in
         pkgs.mkShell {
           buildInputs = [
-            pkgs.rustup
+            ffpkgs.cargo
+            ffpkgs.clippy
+            ffpkgs.rust-src
+            ffpkgs.rustc
+            ffpkgs.rustfmt
             pkgs.wgo
-            pkgs.cargo-flamegraph
-            pkgs.cargo-udeps
-            pkgs.gnuplot
           ];
         });
+
     };
 }
