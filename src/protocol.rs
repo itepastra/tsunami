@@ -1,17 +1,13 @@
-use std::{io::ErrorKind, time::Duration};
 
 use atoi_radix10::parse_from_str;
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
-use tokio::{
-    io::{AsyncBufRead, AsyncBufReadExt, AsyncRead, AsyncReadExt, AsyncWriteExt, BufReader},
-    time::timeout,
-};
-use ufmt::uwriteln;
+use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt};
 
-use crate::{Color, Error, Result};
+use crate::{Color, Result};
 
 pub mod binary;
+pub mod flutties;
 pub mod text;
 
 macro_rules! build_protocol_mode_enum {
@@ -44,6 +40,7 @@ macro_rules! build_protocol_mode_enum {
 build_protocol_mode_enum! {
     Plaintext: text::Protocol{str: String::with_capacity(18), count: 0},
     BinFlurry: binary::Protocol{count: 0},
+    BinFlutties: flutties::Protocol{count: 0},
 }
 
 pub trait Proto {
@@ -103,6 +100,14 @@ impl Protocol {
             Protocol::BinFlurry => {
                 const SIZE_BIN: u8 = 115;
                 writer.write_all(b"PROTOCOL binary\n").await?;
+                writer.write_all(&[SIZE_BIN, canvas]).await?;
+                writer.flush().await?;
+                let x = reader.read_u16().await?;
+                let y = reader.read_u16().await?;
+                return Ok(CanvasSize { x, y });
+            }
+            Protocol::BinFlutties => {
+                const SIZE_BIN: u8 = 32;
                 writer.write_all(&[SIZE_BIN, canvas]).await?;
                 writer.flush().await?;
                 let x = reader.read_u16().await?;

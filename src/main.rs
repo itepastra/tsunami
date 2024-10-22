@@ -6,11 +6,11 @@ use rand::random;
 use tokio::{
     io::{AsyncReadExt, BufReader, BufWriter},
     net::TcpStream,
-    time::{sleep, timeout},
+    time::sleep,
 };
 use tsunami::*;
 
-const COUNTDOWN_START_SECONDS: usize = 5;
+const COUNTDOWN_START_SECONDS: usize = 1;
 const COUNTDOWN_START_SUBSTEPS: usize = 8;
 
 struct Context {
