@@ -4,12 +4,9 @@
     fenix = {
       url = "github:nix-community/fenix";
     };
-    flurry = {
-      url = "github:itepastra/flurry";
-    };
   };
 
-  outputs = { self, fenix, nixpkgs, flurry, ... }:
+  outputs = { self, fenix, nixpkgs, ... }:
     let
       allSystems = [
         "x86_64-linux" # 64-bit Intel/AMD Linux
@@ -19,7 +16,6 @@
       ];
       forAllSystems = f: nixpkgs.lib.genAttrs allSystems (system: f {
         inherit system;
-        inherit flurry;
         pkgs = import nixpkgs { inherit system; };
         fpkgs = import fenix { inherit system; };
       });
@@ -50,7 +46,7 @@
               };
           });
       devShells = forAllSystems
-        ({ pkgs, fpkgs, system, flurry, ... }:
+        ({ pkgs, fpkgs, system, ... }:
           let
             ffpkgs = fpkgs.complete;
           in
@@ -64,7 +60,6 @@
                   ffpkgs.rustc
                   ffpkgs.rustfmt
                   pkgs.wgo
-                  flurry.packages.${system}.flurry
                   self.packages.${system}.tsunami
                 ];
               };
