@@ -18,6 +18,7 @@ tempfile = "*"
 test-case = "*"
 criterion = "*"
 rand = "*"
+tokio-test = "*"
 
 [profile.dev]
 opt-level = 1

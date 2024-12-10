@@ -20,9 +20,13 @@ impl Proto for Protocol {
     ) -> Result<()> {
         let Color::RGB24(r, g, b) = color;
         let CanvasSize { x, y } = size;
-        uwriteln!(&mut self.str, "PX {} {} {:02X}{:02X}{:02X}", x, y, r, g, b).unwrap();
-        writer.write_all(self.str.as_bytes()).await?;
-        self.str.clear();
+        for j in 0..*y {
+            for i in 0..*x {
+                uwriteln!(&mut self.str, "PX {} {} {:02X}{:02X}{:02X}", i, j, r, g, b).unwrap();
+                writer.write_all(self.str.as_bytes()).await?;
+                self.str.clear();
+            }
+        }
         self.count += 1;
         Ok(())
     }
@@ -42,5 +46,35 @@ impl Proto for Protocol {
         }
         self.count += 1;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::needless_return)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_send_frame() {
+        let size = CanvasSize { x: 3, y: 2 };
+        let mut protocol = Protocol {
+            str: String::new(),
+            count: 0,
+        };
+        let color = Color::RGB24(0x34, 0xac, 0x49);
+
+        let mut writer = tokio_test::io::Builder::new()
+            .write(b"PX 0 0 34AC49\n")
+            .write(b"PX 1 0 34AC49\n")
+            .write(b"PX 2 0 34AC49\n")
+            .write(b"PX 0 1 34AC49\n")
+            .write(b"PX 1 1 34AC49\n")
+            .write(b"PX 2 1 34AC49\n")
+            .build();
+
+        assert!(protocol
+            .send_frame(&mut writer, 0, color, &size)
+            .await
+            .is_ok());
     }
 }
