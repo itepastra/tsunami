@@ -1,3 +1,4 @@
+use rand::Rng;
 use tokio::io::AsyncWriteExt;
 use ufmt::uwriteln;
 
@@ -42,6 +43,37 @@ impl Proto for Protocol {
             for i in 0..*x {
                 uwriteln!(&mut self.str, "PX {} {}", i, j).unwrap();
                 writer.write_all(self.str.as_bytes()).await?;
+            }
+        }
+        self.count += 1;
+        Ok(())
+    }
+
+    async fn spray_frame<W: AsyncWriteExt + std::marker::Unpin, R: Rng>(
+        &mut self,
+        writer: &mut W,
+        _canvas: u8,
+        rng: &mut R,
+        size: &CanvasSize,
+    ) -> Result<()> {
+        let Color::RGB24(r, g, b) = rng.gen();
+        let CanvasSize { x, y } = size;
+        for _j in 0..*y {
+            for _i in 0..*x {
+                let lx = rng.gen_range(0..*x);
+                let ly = rng.gen_range(0..*y);
+                uwriteln!(
+                    &mut self.str,
+                    "PX {} {} {:02X}{:02X}{:02X}",
+                    lx,
+                    ly,
+                    r,
+                    g,
+                    b
+                )
+                .unwrap();
+                writer.write_all(self.str.as_bytes()).await?;
+                self.str.clear();
             }
         }
         self.count += 1;

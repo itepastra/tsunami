@@ -10,6 +10,7 @@ pub enum Mode {
     Read,
     #[default]
     Write,
+    Spray,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

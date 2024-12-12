@@ -2,7 +2,7 @@ use clap_serde_derive::ClapSerde;
 use std::{io::Write, time::Duration};
 
 use colored::Colorize;
-use rand::random;
+use rand::{random, SeedableRng};
 use tokio::{
     io::{AsyncReadExt, BufReader, BufWriter},
     net::TcpStream,
@@ -163,6 +163,21 @@ async fn main() -> Result<()> {
                         loop {
                             let color = random();
                             match proto.send_frame(&mut writer, canvas, color, &size).await {
+                                Ok(_) => {},
+                                Err(_) => {
+                                    eprintln!("there was a disconnect on a worker, terminating it");
+                                    read_drain.abort();
+                                    return;
+                                },
+                            }
+                        }
+                    })
+                }
+                Mode::Spray => {
+                    match_parser!(proto: protocol => {
+                        let mut rng = rand::rngs::StdRng::from_entropy();
+                        loop {
+                            match proto.spray_frame(&mut writer, canvas, &mut rng, &size).await {
                                 Ok(_) => {},
                                 Err(_) => {
                                     eprintln!("there was a disconnect on a worker, terminating it");

@@ -1,3 +1,4 @@
+use rand::Rng;
 use tokio::io::AsyncWriteExt;
 
 use crate::{Color, Result};
@@ -54,6 +55,37 @@ impl Proto for Protocol {
                         i.to_be_bytes()[1],
                         j.to_be_bytes()[0],
                         j.to_be_bytes()[1],
+                    ])
+                    .await?;
+            }
+        }
+        self.count += 1;
+        Ok(())
+    }
+
+    async fn spray_frame<W: AsyncWriteExt + std::marker::Unpin, R: Rng>(
+        &mut self,
+        writer: &mut W,
+        canvas: u8,
+        rng: &mut R,
+        size: &CanvasSize,
+    ) -> Result<()> {
+        let r = rng.gen();
+        let CanvasSize { x, y } = size;
+        const SET_PX_PALETTE_BIN: u8 = 0x21;
+        for _j in 0..*y {
+            for _i in 0..*x {
+                let lx = rng.gen_range(0..*x);
+                let ly = rng.gen_range(0..*y);
+                writer
+                    .write_all(&[
+                        SET_PX_PALETTE_BIN,
+                        canvas,
+                        lx.to_be_bytes()[0],
+                        lx.to_be_bytes()[1],
+                        ly.to_be_bytes()[0],
+                        ly.to_be_bytes()[1],
+                        r,
                     ])
                     .await?;
             }

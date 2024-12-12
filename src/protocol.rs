@@ -1,5 +1,6 @@
 use atoi_radix10::parse_from_str;
 use clap::ValueEnum;
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt};
 
@@ -51,6 +52,15 @@ pub trait Proto {
         writer: &mut W,
         canvas: u8,
         color: Color,
+        size: &CanvasSize,
+    ) -> Result<()>;
+
+    #[allow(async_fn_in_trait)]
+    async fn spray_frame<W: AsyncWriteExt + std::marker::Unpin, R: Rng>(
+        &mut self,
+        writer: &mut W,
+        canvas: u8,
+        rng: &mut R,
         size: &CanvasSize,
     ) -> Result<()>;
 

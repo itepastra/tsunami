@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use rand::Rng;
 use tokio::{io::AsyncWriteExt, time::interval};
 
 use crate::{Color, Result};
@@ -61,6 +62,41 @@ impl Proto for Protocol {
                         j.to_le_bytes()[1],
                     ])
                     .await?;
+            }
+        }
+        self.count += 1;
+        Ok(())
+    }
+
+    async fn spray_frame<W: AsyncWriteExt + std::marker::Unpin, R: Rng>(
+        &mut self,
+        writer: &mut W,
+        canvas: u8,
+        rng: &mut R,
+        size: &CanvasSize,
+    ) -> Result<()> {
+        let Color::RGB24(r, g, b) = rng.gen();
+        let CanvasSize { x, y } = size;
+        let set_px_rgb_bin: u8 = 176 + canvas;
+        let mut intrval = interval(Duration::from_millis(1));
+        for _j in 0..*y {
+            for _i in 0..*x {
+                intrval.tick().await;
+                let lx = rng.gen_range(0..*x);
+                let ly = rng.gen_range(0..*y);
+                writer
+                    .write_all(&[
+                        set_px_rgb_bin,
+                        lx.to_le_bytes()[0],
+                        lx.to_le_bytes()[1],
+                        ly.to_le_bytes()[0],
+                        ly.to_le_bytes()[1],
+                        r,
+                        g,
+                        b,
+                    ])
+                    .await?;
+                writer.flush().await?;
             }
         }
         self.count += 1;
