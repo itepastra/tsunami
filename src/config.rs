@@ -64,7 +64,7 @@ impl Config {
                 _ => return Err(Error::Io(e)),
             },
         };
-        Ok(toml::from_str(&config).map_err(|e| Error::FileParseError(e.to_string()))?)
+        toml::from_str(&config).map_err(|e| Error::FileParseError(e.to_string()))
     }
 }
 

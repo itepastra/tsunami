@@ -14,9 +14,10 @@ pub mod text;
 macro_rules! build_protocol_mode_enum {
     ($($name:ident: $t:expr,)*) => {
 
-        #[derive(Debug, Clone, Copy, Serialize, Deserialize, ValueEnum, Hash)]
+        #[derive(Debug, Clone, Copy, Serialize, Deserialize, ValueEnum, Hash, Default)]
         #[serde(rename_all = "kebab-case")]
         pub enum Protocol {
+            #[default]
             $($name,)*
         }
 
@@ -106,7 +107,7 @@ impl Protocol {
                 let x = parse_from_str(x).unwrap();
                 let y = parse_from_str(y).unwrap();
 
-                return Ok(CanvasSize { x, y });
+                Ok(CanvasSize { x, y })
             }
             Protocol::BinFlurry => {
                 const SIZE_BIN: u8 = 115;
@@ -115,7 +116,7 @@ impl Protocol {
                 writer.flush().await?;
                 let x = reader.read_u16().await?;
                 let y = reader.read_u16().await?;
-                return Ok(CanvasSize { x, y });
+                Ok(CanvasSize { x, y })
             }
             Protocol::BinFlutties => {
                 const SIZE_BIN: u8 = 32;
@@ -123,7 +124,7 @@ impl Protocol {
                 writer.flush().await?;
                 let x = reader.read_u16().await?;
                 let y = reader.read_u16().await?;
-                return Ok(CanvasSize { x, y });
+                Ok(CanvasSize { x, y })
             }
             Protocol::Palette => {
                 const SIZE_BIN: u8 = 115;
@@ -132,14 +133,8 @@ impl Protocol {
                 writer.flush().await?;
                 let x = reader.read_u16().await?;
                 let y = reader.read_u16().await?;
-                return Ok(CanvasSize { x, y });
+                Ok(CanvasSize { x, y })
             }
         }
-    }
-}
-
-impl Default for Protocol {
-    fn default() -> Self {
-        Protocol::Plaintext
     }
 }

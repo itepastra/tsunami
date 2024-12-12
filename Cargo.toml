@@ -3,16 +3,6 @@ name = "tsunami"
 version = "0.1.0"
 edition = "2021"
 
-clap = { version = "*", features = ["derive"] }
-clap-serde-derive = "*"
-colored = "*"
-crossterm = "*"
-dirs = "*"
-rayon = "*"
-serde = { version = "*", features = ["derive"] }
-tokio = { version = "*", features = ["full"] }
-toml = "*"
-
 [dev-dependencies]
 tempfile = "*"
 test-case = "*"

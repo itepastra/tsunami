@@ -48,9 +48,9 @@ consent from the instance owner.
             .await;
         }
         println!("\nStarting now");
-        return true;
+        true
     } else {
-        return false;
+        false
     }
 }
 
@@ -95,29 +95,26 @@ async fn main() -> Result<()> {
     let mut args = config.args.clone().merge_clap();
     verify_args(&args)?;
 
-    match &args.target {
-        Some(target) => {
-            let target = config.targets.get(target).unwrap_or_else(|| {
-                eprintln!("Target '{}' not found in config", target);
-                std::process::exit(1);
-            });
+    if let Some(target) = &args.target {
+        let target = config.targets.get(target).unwrap_or_else(|| {
+            eprintln!("Target '{}' not found in config", target);
+            std::process::exit(1);
+        });
 
-            args.host = Some(target.host.clone());
-            args.protocol = target.protocol.clone();
-            args.canvas = target.canvas;
-            args.mode = target.mode;
-        }
-        None => {}
+        args.host = Some(target.host.clone());
+        args.protocol = target.protocol;
+        args.canvas = target.canvas;
+        args.mode = target.mode;
     }
 
     let context = Context { args };
     let host = context.args.host.clone().unwrap();
-    let protocol = context.args.protocol.clone();
-    let mode = context.args.mode.clone();
-    let canvas = context.args.canvas.clone();
+    let protocol = context.args.protocol;
+    let mode = context.args.mode;
+    let canvas = context.args.canvas;
 
     let mut handles = vec![];
-    let threads = context.args.send_threads.clone();
+    let threads = context.args.send_threads;
     println!("Spawning threads");
     for thread in 0..threads {
         let socket = TcpStream::connect(host.clone()).await?;
@@ -132,14 +129,10 @@ async fn main() -> Result<()> {
                 .unwrap();
             let read_drain = tokio::spawn(async move {
                 let mut buf = vec![0; 4096];
-                loop {
-                    if let Ok(n) = reader.read(&mut buf).await {
-                        if n == 0 {
-                            sleep(Duration::from_millis(10)).await;
-                        }
-                    } else {
-                        break;
-                    };
+                while let Ok(n) = reader.read(&mut buf).await {
+                    if n == 0 {
+                        sleep(Duration::from_millis(10)).await;
+                    }
                 }
             });
             println!("Thread {} got canvas size ({}, {})", thread, size.x, size.y);
