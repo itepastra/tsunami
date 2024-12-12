@@ -117,7 +117,7 @@ async fn main() -> Result<()> {
     let threads = context.args.send_threads;
     println!("Spawning threads");
     for thread in 0..threads {
-        let socket = TcpStream::connect(host.clone()).await?;
+        let socket = TcpStream::connect(&host).await?;
         println!("Thread {} connected", thread);
         handles.push(tokio::spawn(async move {
             let (reader, writer) = socket.into_split();
