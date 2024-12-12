@@ -10,6 +10,12 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: clippy
+      run: cargo clippy --tests -- -Dclippy::all
   build:
 
     runs-on: ubuntu-latest
