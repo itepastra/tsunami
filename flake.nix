@@ -1,5 +1,5 @@
 {
-  description = "Build a cargo project";
+  description = "A pixelflut stress testing tool";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
