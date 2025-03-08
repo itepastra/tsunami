@@ -18,7 +18,7 @@ pub fn benchmark_send(c: &mut Criterion) {
                 let proto = binary::Protocol { count: 0 };
                 let size = criterion::black_box(CanvasSize { x: 800, y: 600 });
                 let canvas = random();
-                return (proto, canvas, size, Vec::new());
+                (proto, canvas, size, Vec::new())
             },
             fun_name,
             BatchSize::SmallInput,
@@ -41,7 +41,7 @@ pub fn benchmark_receive(c: &mut Criterion) {
                 let proto = binary::Protocol { count: 0 };
                 let size = criterion::black_box(CanvasSize { x: 800, y: 600 });
                 let canvas = random();
-                return (proto, canvas, size, Vec::new());
+                (proto, canvas, size, Vec::new())
             },
             fun_name,
             BatchSize::SmallInput,
