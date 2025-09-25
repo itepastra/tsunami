@@ -70,13 +70,13 @@ impl Proto for Protocol {
         rng: &mut R,
         size: &CanvasSize,
     ) -> Result<()> {
-        let r = rng.gen();
+        let r = rng.random();
         let CanvasSize { x, y } = size;
         const SET_PX_PALETTE_BIN: u8 = 0x21;
         for _j in 0..*y {
             for _i in 0..*x {
-                let lx = rng.gen_range(0..*x);
-                let ly = rng.gen_range(0..*y);
+                let lx = rng.random_range(0..*x);
+                let ly = rng.random_range(0..*y);
                 writer
                     .write_all(&[
                         SET_PX_PALETTE_BIN,

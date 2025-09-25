@@ -168,7 +168,7 @@ async fn main() -> Result<()> {
                 }
                 Mode::Spray => {
                     match_parser!(proto: protocol => {
-                        let mut rng = rand::rngs::StdRng::from_entropy();
+                        let mut rng = rand::rngs::StdRng::from_os_rng();
                         loop {
                             match proto.spray_frame(&mut writer, canvas, &mut rng, &size).await {
                                 Ok(_) => {},

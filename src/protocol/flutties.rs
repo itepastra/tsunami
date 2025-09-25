@@ -75,15 +75,15 @@ impl Proto for Protocol {
         rng: &mut R,
         size: &CanvasSize,
     ) -> Result<()> {
-        let Color::RGB24(r, g, b) = rng.gen();
+        let Color::RGB24(r, g, b) = rng.random();
         let CanvasSize { x, y } = size;
         let set_px_rgb_bin: u8 = 176 + canvas;
         let mut intrval = interval(Duration::from_millis(1));
         for _j in 0..*y {
             for _i in 0..*x {
                 intrval.tick().await;
-                let lx = rng.gen_range(0..*x);
-                let ly = rng.gen_range(0..*y);
+                let lx = rng.random_range(0..*x);
+                let ly = rng.random_range(0..*y);
                 writer
                     .write_all(&[
                         set_px_rgb_bin,
